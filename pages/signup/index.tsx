@@ -1,7 +1,9 @@
 import React, {useState} from 'react';
+import Link from 'next/link'
+import {useCharacters} from "../../hooks/useCharacters";
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-import {Box, Button, TextField, FormGroup, FormControlLabel, FormControl, FormLabel, RadioGroup, Radio, Checkbox} from '@mui/material'
+import {Box, Button, Autocomplete, TextField, FormGroup, FormControlLabel, FormControl, FormLabel, RadioGroup, Radio, Checkbox} from '@mui/material'
 
 interface Values {
     firstName: string;
@@ -10,6 +12,7 @@ interface Values {
     password: string;
     passwordConfirmation: string;
     gender: string;
+    character: string;
     terms: boolean;
     notify: boolean
 }
@@ -37,6 +40,12 @@ const validationSchema = yup.object({
 
 function Index() {
 
+    const {error, loading, data} = useCharacters()
+
+    // console.log(data?.characters.results, 'results');
+
+
+
     const formik = useFormik({
         initialValues: {
             firstName:'',
@@ -45,6 +54,7 @@ function Index() {
             password: '',
             passwordConfirmation: '',
             gender:'',
+            character:'',
             terms: false,
             notify: true
         },
@@ -54,7 +64,7 @@ function Index() {
         }
     })
 
-    const {handleSubmit, values, handleChange, errors, touched, handleBlur} = formik
+    const {handleSubmit, values, handleChange, setFieldValue, errors, touched, handleBlur} = formik
 
     return (
         <div>
@@ -138,6 +148,20 @@ function Index() {
                             <FormControlLabel value="other" control={<Radio />} label="Other" />
                         </RadioGroup>
                     </FormControl>
+                    {data && <Autocomplete
+                        value={values.character}
+                        onChange={(e, value) =>
+                            setFieldValue("character", value)}
+                        id="character"
+                        options={data?.characters.results.map((character: any) => character.name)}
+                        sx={{ width: 300 }}
+                        renderInput={(params) =>
+                            <TextField {...params}
+                                       label="Character"
+                                       name='character'
+
+                            />}
+                    />}
                     <FormGroup>
                         <FormControlLabel
                             control={
@@ -170,7 +194,9 @@ function Index() {
                 </Box>
 
             </form>
-
+            <Box>
+                <Link href='/signin'><a>Already have an account? Sign in here.</a></Link>
+                </Box>
         </div>
     );
 }
